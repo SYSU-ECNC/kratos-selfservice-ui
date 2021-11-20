@@ -20,7 +20,7 @@ import {
   SelfServiceLoginFlow,
   SubmitSelfServiceLoginFlowBody
 } from '@ory/kratos-client'
-import { CardTitle, CodeBox } from '@ory/themes'
+import { CardTitle } from '@ory/themes'
 import { AxiosError } from 'axios'
 import type { NextPage } from 'next'
 import Head from 'next/head'
