@@ -199,6 +199,7 @@ const Login: NextPage = () => {
                 variant="outline"
                 w="100%"
                 leftIcon={<LarkOne theme="outline" size="18" />}
+                boxShadow="0px 1px 0px 2px #3370FF51"
               >
                 Continue with Lark
               </Button>
@@ -210,6 +211,8 @@ const Login: NextPage = () => {
                 variant="outline"
                 w="100%"
                 leftIcon={<Wechat theme="outline" size="18" />}
+                boxShadow="0px 1px 0px 2px #2AAE6751"
+                
               >
                 Continue with WeChat
               </Button>
@@ -221,6 +224,7 @@ const Login: NextPage = () => {
                 variant="outline"
                 w="100%"
                 leftIcon={<School theme="outline" size="18" />}
+                boxShadow="0px 1px 0px 2px #00582651"
               >
                 Continue with SYSU CAS
               </Button>
