@@ -19,6 +19,24 @@ import {
 } from '../pkg'
 import { handleGetFlowError, handleFlowError } from '../pkg/errors'
 import ory from '../pkg/sdk'
+import { Box, Button, Image ,Center,Container,Grid,Stack,VStack,Input } from '@chakra-ui/react'
+import {Wechat, LarkOne,School} from  '@icon-park/react'
+interface InputBox_Value{
+  title:string;
+  variant?:string;
+  placeholder?:string;
+  height:number;
+}
+function InputBox(props:InputBox_Value){
+  return(
+    <Box w="100%">
+        <Container fontSize="16" color="gray.700" m="0" p="0">
+            {props.title}
+        </Container>
+       <Input variant={props.variant?props.variant:"filled"} placeholder={props.placeholder?props.placeholder:''} w="100%" h={props.height}/>
+    </Box>
+  )
+}
 
 const Login: NextPage = () => {
   const [flow, setFlow] = useState<SelfServiceLoginFlow>()
@@ -99,7 +117,87 @@ const Login: NextPage = () => {
             return Promise.reject(err)
           })
       )
+const SWIDTH =  (window.innerWidth)
+  const MAXHIGHT = window.innerWidth * 0.666667
+  const SHEIGHT =Math.min(window.innerHeight,MAXHIGHT)
+  const FWIDTH = window.innerWidth * 0.412
+  const BWIDTH = window.innerWidth * 0.3
+  const BHEIGHT = window.innerWidth * 0.0333
+  const GAP =  window.innerWidth * 0.0333;
+  return (
+  <Box   
+    bgImage="url('images/login_bg.jpeg')"
+    bgPosition="center"
+    bgRepeat="no-repeat"
+    h={SHEIGHT}
+    w={SWIDTH}
+    bgSize="100%"
+    mt={MAXHIGHT>window.innerHeight? 0:((window.innerHeight-MAXHIGHT)/2)}
+  >
+    <Container fontSize="14" color="gray.300" fontFamily="Raleway" pos="absolute" maxW={SWIDTH-BWIDTH-BWIDTH}  top={SHEIGHT*0.95} left={SWIDTH*0.3194} p="0" m="0">
+              Nature vector created by freepik - www.freepik.com
+    </Container>
 
+    <Center w={FWIDTH} h={SHEIGHT} bg="#fff" pos="absolute"  pt="42" pb="42"  left={ window.innerWidth-FWIDTH }>
+
+    
+      <VStack    spacing={GAP*0.8}>
+        <Container fontSize="30" color="blue.600" fontFamily="Raleway" w={BWIDTH} p="0" m="0">
+          Log In to ECNC Workspace
+        </Container>
+        
+        <VStack  spacing={GAP*0.8} >
+          <Button  colorScheme="blue" color="#3370FF" border="2px"  variant="outline"     w={BWIDTH} h={BHEIGHT}>
+            <LarkOne theme="outline" size="24" fill="#3370FF"/>
+            Continue with Lark
+          </Button>
+        
+         
+          <Button  colorScheme="blue" color="#2AAE67" border="2px"  variant="outline" w={BWIDTH} h={BHEIGHT}>
+              <Wechat theme="outline" size="24" fill="#2AAE67"/>
+              Continue with WeChat
+          </Button>
+         
+          
+          <Button  colorScheme="blue" color="#005826" border="2px"  variant="outline" w={BWIDTH} h={BHEIGHT}>
+              <School theme="outline" size="24" fill="#005826"/>
+              Continue with SYSU CAS
+          </Button>
+        </VStack>
+        <Box w={BWIDTH} borderTopStyle="solid" borderTopWidth="1px" borderColor="gray.200" mt={GAP} pt="10px">
+          <Container fontSize="12" color="blackAlpha.500" fontFamily="Raleway" w={BWIDTH} p="0" m="0">
+              or Login with your ECNC Account
+          </Container>
+        </Box>
+        <VStack mt={GAP} w={BWIDTH} spacing={GAP/2}>
+          
+           <InputBox title="NetId"  height = {BHEIGHT}/>
+           <InputBox title="Password"  height = {BHEIGHT} placeholder="注意不是 NetID 的密码"/>
+           
+            
+        </VStack>
+
+        <Button  colorScheme="blue" color="blue.600" variant="outline" w={BWIDTH} h={BHEIGHT*0.8}
+             fontSize="14" border="2px" 
+           >
+              Login
+          </Button>
+      </VStack>
+      
+    </Center>
+
+    <Image 
+     src="images/ecnc_white.png" pl='72px' pt="56px">
+    </Image>
+
+    
+ 
+
+    
+  </Box>
+
+  );
+//
   return (
     <>
       <Head>
