@@ -1,8 +1,26 @@
 import {
+  Box,
+  Button,
+  Image,
+  Center,
+  Container,
+  Text,
+  VStack,
+  Input,
+  Flex,
+  Heading,
+  ChakraProvider,
+  StackDivider,
+  FormControl,
+  FormLabel,
+  Link as ChakraLink
+} from '@chakra-ui/react'
+import { Wechat, LarkOne, School } from '@icon-park/react'
+import {
   SelfServiceLoginFlow,
   SubmitSelfServiceLoginFlowBody
 } from '@ory/kratos-client'
-import { CardTitle } from '@ory/themes'
+import { CardTitle, CodeBox } from '@ory/themes'
 import { AxiosError } from 'axios'
 import type { NextPage } from 'next'
 import Head from 'next/head'
@@ -19,21 +37,25 @@ import {
 } from '../pkg'
 import { handleGetFlowError, handleFlowError } from '../pkg/errors'
 import ory from '../pkg/sdk'
-import { Box, Button, Image ,Center,Container,Grid,Stack,VStack,Input } from '@chakra-ui/react'
-import {Wechat, LarkOne,School} from  '@icon-park/react'
-interface InputBox_Value{
-  title:string;
-  variant?:string;
-  placeholder?:string;
-  height:number;
+
+interface InputBox_Value {
+  title: string
+  variant?: string
+  placeholder?: string
+  height: number
 }
-function InputBox(props:InputBox_Value){
-  return(
+function InputBox(props: InputBox_Value) {
+  return (
     <Box w="100%">
-        <Container fontSize="16" color="gray.700" m="0" p="0">
-            {props.title}
-        </Container>
-       <Input variant={props.variant?props.variant:"filled"} placeholder={props.placeholder?props.placeholder:''} w="100%" h={props.height}/>
+      <Container fontSize="16" color="gray.700" m="0" p="0">
+        {props.title}
+      </Container>
+      <Input
+        variant={props.variant ? props.variant : 'filled'}
+        placeholder={props.placeholder ? props.placeholder : ''}
+        w="100%"
+        h={props.height}
+      />
     </Box>
   )
 }
@@ -117,87 +139,137 @@ const Login: NextPage = () => {
             return Promise.reject(err)
           })
       )
-const SWIDTH =  (window.innerWidth)
-  const MAXHIGHT = window.innerWidth * 0.666667
-  const SHEIGHT =Math.min(window.innerHeight,MAXHIGHT)
-  const FWIDTH = window.innerWidth * 0.412
-  const BWIDTH = window.innerWidth * 0.3
-  const BHEIGHT = window.innerWidth * 0.0333
-  const GAP =  window.innerWidth * 0.0333;
+
   return (
-  <Box   
-    bgImage="url('images/login_bg.jpeg')"
-    bgPosition="center"
-    bgRepeat="no-repeat"
-    h={SHEIGHT}
-    w={SWIDTH}
-    bgSize="100%"
-    mt={MAXHIGHT>window.innerHeight? 0:((window.innerHeight-MAXHIGHT)/2)}
-  >
-    <Container fontSize="14" color="gray.300" fontFamily="Raleway" pos="absolute" maxW={SWIDTH-BWIDTH-BWIDTH}  top={SHEIGHT*0.95} left={SWIDTH*0.3194} p="0" m="0">
-              Nature vector created by freepik - www.freepik.com
-    </Container>
+    <ChakraProvider>
+      <Flex
+        bgImage="url('images/login_bg.jpeg')"
+        bgPosition="bottom left"
+        bgRepeat="no-repeat"
+        h="100vh"
+        w="100vw"
+        bgSize="cover"
+      >
+        <Flex flex="1" px="20" py="14" direction="column">
+          <Box flex="1">
+            <Image src="images/ecnc_white.svg" w="72px" h="72px" />
+          </Box>
 
-    <Center w={FWIDTH} h={SHEIGHT} bg="#fff" pos="absolute"  pt="42" pb="42"  left={ window.innerWidth-FWIDTH }>
+          <ChakraLink
+            href="https://www.freepik.com/"
+            fontSize="14"
+            color="whiteAlpha.600"
+            fontFamily="Raleway"
+            textAlign="right"
+            isExternal={true}
+            textDecoration="underline"
+          >
+            Background Image Designed by Freepik
+          </ChakraLink>
+        </Flex>
 
-    
-      <VStack    spacing={GAP*0.8}>
-        <Container fontSize="30" color="blue.600" fontFamily="Raleway" w={BWIDTH} p="0" m="0">
-          Log In to ECNC Workspace
-        </Container>
-        
-        <VStack  spacing={GAP*0.8} >
-          <Button  colorScheme="blue" color="#3370FF" border="2px"  variant="outline"     w={BWIDTH} h={BHEIGHT}>
-            <LarkOne theme="outline" size="24" fill="#3370FF"/>
-            Continue with Lark
-          </Button>
-        
-         
-          <Button  colorScheme="blue" color="#2AAE67" border="2px"  variant="outline" w={BWIDTH} h={BHEIGHT}>
-              <Wechat theme="outline" size="24" fill="#2AAE67"/>
-              Continue with WeChat
-          </Button>
-         
-          
-          <Button  colorScheme="blue" color="#005826" border="2px"  variant="outline" w={BWIDTH} h={BHEIGHT}>
-              <School theme="outline" size="24" fill="#005826"/>
-              Continue with SYSU CAS
-          </Button>
+        <VStack
+          spacing={12}
+          w="592px"
+          px="20"
+          bg="white"
+          justify="center"
+          align="stretch"
+        >
+          <Heading
+            textStyle="3xl"
+            color="blue.600"
+            fontWeight="normal"
+            fontFamily="Raleway"
+          >
+            Log In to ECNC Workspace
+          </Heading>
+
+          <VStack
+            w="100%"
+            spacing={6}
+            divider={<StackDivider borderColor="gray.200" />}
+            align="stretch"
+          >
+            <VStack spacing={6} w="100%">
+              <Button
+                colorScheme="blue"
+                color="#3370FF"
+                border="2px"
+                variant="outline"
+                w="100%"
+                leftIcon={<LarkOne theme="outline" size="18" />}
+              >
+                Continue with Lark
+              </Button>
+
+              <Button
+                colorScheme="blue"
+                color="#2AAE67"
+                border="2px"
+                variant="outline"
+                w="100%"
+                leftIcon={<Wechat theme="outline" size="18" />}
+              >
+                Continue with WeChat
+              </Button>
+
+              <Button
+                colorScheme="blue"
+                color="#005826"
+                border="2px"
+                variant="outline"
+                w="100%"
+                leftIcon={<School theme="outline" size="18" />}
+              >
+                Continue with SYSU CAS
+              </Button>
+            </VStack>
+
+            <Box>
+              <Text
+                fontSize="12"
+                color="blackAlpha.500"
+                fontWeight="bold"
+                fontFamily="Raleway"
+              >
+                or Login with your ECNC Account
+              </Text>
+
+              <VStack mt={6} spacing={6} align="stretch">
+                <FormControl>
+                  <FormLabel>NetID</FormLabel>
+                  <Input variant="filled" />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Password</FormLabel>
+                  <Input
+                    variant="filled"
+                    type="password"
+                    placeholder="注意不是 NetID 的密码"
+                  />
+                </FormControl>
+              </VStack>
+
+              <Button
+                colorScheme="blue"
+                color="blue.600"
+                variant="outline"
+                fontSize="14"
+                border="2px"
+                mt="8"
+                w="100%"
+              >
+                Login
+              </Button>
+            </Box>
+          </VStack>
         </VStack>
-        <Box w={BWIDTH} borderTopStyle="solid" borderTopWidth="1px" borderColor="gray.200" mt={GAP} pt="10px">
-          <Container fontSize="12" color="blackAlpha.500" fontFamily="Raleway" w={BWIDTH} p="0" m="0">
-              or Login with your ECNC Account
-          </Container>
-        </Box>
-        <VStack mt={GAP} w={BWIDTH} spacing={GAP/2}>
-          
-           <InputBox title="NetId"  height = {BHEIGHT}/>
-           <InputBox title="Password"  height = {BHEIGHT} placeholder="注意不是 NetID 的密码"/>
-           
-            
-        </VStack>
-
-        <Button  colorScheme="blue" color="blue.600" variant="outline" w={BWIDTH} h={BHEIGHT*0.8}
-             fontSize="14" border="2px" 
-           >
-              Login
-          </Button>
-      </VStack>
-      
-    </Center>
-
-    <Image 
-     src="images/ecnc_white.png" pl='72px' pt="56px">
-    </Image>
-
-    
- 
-
-    
-  </Box>
-
-  );
-//
+      </Flex>
+    </ChakraProvider>
+  )
+  //
   return (
     <>
       <Head>
