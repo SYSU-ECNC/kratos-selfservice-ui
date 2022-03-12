@@ -16,6 +16,7 @@ import {
   Link as ChakraLink
 } from '@chakra-ui/react'
 import { Wechat, LarkOne, School } from '@icon-park/react'
+import { isUiNodeInputAttributes } from '@ory/integrations/ui'
 import {
   SelfServiceLoginFlow,
   SubmitSelfServiceLoginFlowBody,
@@ -81,6 +82,33 @@ const Login: NextPage = () => {
   // to sign out if they are performing two-factor authentication!
   const onLogout = createLogoutHandler([aal, refresh])
 
+  const afterFlowObtained = (data: SelfServiceLoginFlow) => {
+    if (navigator.userAgent.toLowerCase().includes('lark')) {
+      // The page is open in Lark WebView
+      const csrfTokenNode = data.ui.nodes.find(
+        (node) =>
+          isUiNodeInputAttributes(node.attributes) &&
+          node.attributes.name === 'csrf_token'
+      )
+      const csrfToken = (csrfTokenNode?.attributes as UiNodeInputAttributes)
+        ?.value
+
+      ory
+        .submitSelfServiceLoginFlow(data.id, undefined, {
+          csrf_token: csrfToken,
+          method: 'oidc',
+          provider: 'lark'
+        })
+        .catch((err: AxiosError) => {
+          if (err.response?.status === 422) {
+            location.href = err.response?.data['redirect_browser_to'];
+          }
+        })
+      return
+    }
+    setFlow(data)
+  }
+
   useEffect(() => {
     // If the router is not ready yet, or we already have a flow, do nothing.
     if (!router.isReady || flow) {
@@ -92,7 +120,7 @@ const Login: NextPage = () => {
       ory
         .getSelfServiceLoginFlow(String(flowId))
         .then(({ data }) => {
-          setFlow(data)
+          afterFlowObtained(data);
         })
         .catch(handleGetFlowError(router, 'login', setFlow))
       return
@@ -106,7 +134,7 @@ const Login: NextPage = () => {
         returnTo ? String(returnTo) : undefined
       )
       .then(({ data }) => {
-        setFlow(data)
+        afterFlowObtained(data);
       })
       .catch(handleFlowError(router, 'login', setFlow))
   }, [flowId, router, router.isReady, aal, refresh, returnTo, flow])
