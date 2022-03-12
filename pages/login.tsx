@@ -169,7 +169,7 @@ const Login: NextPage = () => {
           </ChakraLink>
         </Flex>
 
-        {!flow?.refresh && flow?.requested_aal !== 'aal2' ? (
+        {flow && !flow?.refresh && flow?.requested_aal !== 'aal2' ? (
           <form method={flow?.ui.method} action={flow?.ui.action}>
             <VStack
               spacing={12}
@@ -271,7 +271,7 @@ const Login: NextPage = () => {
                             (node.attributes as UiNodeInputAttributes).name ===
                             'csrf_token'
                         )?.attributes as UiNodeInputAttributes
-                      ).value
+                      )?.value
                     }
                   />
 
