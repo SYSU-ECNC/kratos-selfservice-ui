@@ -169,16 +169,16 @@ const Login: NextPage = () => {
           </ChakraLink>
         </Flex>
 
-        {flow && !flow?.refresh && flow?.requested_aal !== 'aal2' ? (
-          <form method={flow?.ui.method} action={flow?.ui.action}>
-            <VStack
-              spacing={12}
-              w="592px"
-              px="20"
-              bg="white"
-              justify="center"
-              align="stretch"
-            >
+        <VStack
+          spacing={12}
+          w="592px"
+          px="20"
+          bg="white"
+          justify="center"
+          align="stretch"
+        >
+          {flow && !flow?.refresh && flow?.requested_aal !== 'aal2' ? (
+            <form method={flow?.ui.method} action={flow?.ui.action}>
               <Heading
                 textStyle="3xl"
                 color="blue.600"
@@ -290,11 +290,11 @@ const Login: NextPage = () => {
                   </Button>
                 </Box>
               </VStack>
-            </VStack>
-          </form>
-        ) : (
-          <span>unsupported</span>
-        )}
+            </form>
+          ) : (
+            <span>unsupported</span>
+          )}
+        </VStack>
       </Flex>
     </ChakraProvider>
   )
