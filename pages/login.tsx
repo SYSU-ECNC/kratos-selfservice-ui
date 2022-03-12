@@ -18,7 +18,8 @@ import {
 import { Wechat, LarkOne, School } from '@icon-park/react'
 import {
   SelfServiceLoginFlow,
-  SubmitSelfServiceLoginFlowBody
+  SubmitSelfServiceLoginFlowBody,
+  UiNodeInputAttributes
 } from '@ory/kratos-client'
 import { CardTitle } from '@ory/themes'
 import { AxiosError } from 'axios'
@@ -168,139 +169,129 @@ const Login: NextPage = () => {
           </ChakraLink>
         </Flex>
 
-        <VStack
-          spacing={12}
-          w="592px"
-          px="20"
-          bg="white"
-          justify="center"
-          align="stretch"
-        >
-          <Heading
-            textStyle="3xl"
-            color="blue.600"
-            fontWeight="normal"
-            fontFamily="Raleway"
-          >
-            Log In to ECNC Workspace
-          </Heading>
-
-          <VStack
-            w="100%"
-            spacing={6}
-            divider={<StackDivider borderColor="gray.200" />}
-            align="stretch"
-          >
-            <VStack spacing={6} w="100%">
-              <Button
-                colorScheme="blue"
-                color="#3370FF"
-                border="2px"
-                variant="outline"
-                w="100%"
-                leftIcon={<LarkOne theme="outline" size="18" />}
-                boxShadow="0px 1px 0px 2px #3370FF51"
-              >
-                Continue with Lark
-              </Button>
-
-              <Button
-                colorScheme="blue"
-                color="#2AAE67"
-                border="2px"
-                variant="outline"
-                w="100%"
-                leftIcon={<Wechat theme="outline" size="18" />}
-                boxShadow="0px 1px 0px 2px #2AAE6751"
-              >
-                Continue with WeChat
-              </Button>
-
-              <Button
-                colorScheme="blue"
-                color="#005826"
-                border="2px"
-                variant="outline"
-                w="100%"
-                leftIcon={<School theme="outline" size="18" />}
-                boxShadow="0px 1px 0px 2px #00582651"
-              >
-                Continue with SYSU CAS
-              </Button>
-            </VStack>
-
-            <Box>
-              <Text
-                fontSize="12"
-                color="blackAlpha.500"
-                fontWeight="bold"
+        {!flow?.refresh && flow?.requested_aal !== 'aal2' ? (
+          <form method={flow?.ui.method} action={flow?.ui.action}>
+            <VStack
+              spacing={12}
+              w="592px"
+              px="20"
+              bg="white"
+              justify="center"
+              align="stretch"
+            >
+              <Heading
+                textStyle="3xl"
+                color="blue.600"
+                fontWeight="normal"
                 fontFamily="Raleway"
               >
-                or Login with your ECNC Account
-              </Text>
+                Log In to ECNC Workspace
+              </Heading>
 
-              <VStack mt={6} spacing={6} align="stretch">
-                <FormControl>
-                  <FormLabel>NetID</FormLabel>
-                  <Input variant="filled" />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Password</FormLabel>
-                  <Input
-                    variant="filled"
-                    type="password"
-                    placeholder="注意不是 NetID 的密码"
-                  />
-                </FormControl>
-              </VStack>
-
-              <Button
-                colorScheme="blue"
-                color="blue.600"
-                variant="outline"
-                fontSize="14"
-                border="2px"
-                mt="8"
+              <VStack
                 w="100%"
+                spacing={6}
+                divider={<StackDivider borderColor="gray.200" />}
+                align="stretch"
               >
-                Login
-              </Button>
-            </Box>
-          </VStack>
-        </VStack>
-        <MarginCard>
-          <CardTitle>
-            {(() => {
-              if (flow?.refresh) {
-                return 'Confirm Action'
-              } else if (flow?.requested_aal === 'aal2') {
-                return 'Two-Factor Authentication'
-              }
-              return 'Sign In'
-            })()}
-          </CardTitle>
-          <Flow onSubmit={onSubmit} flow={flow} />
-        </MarginCard>
-        {aal || refresh ? (
-          <ActionCard>
-            <CenterLink data-testid="logout-link" onClick={onLogout}>
-              Log out
-            </CenterLink>
-          </ActionCard>
+                <VStack spacing={6} w="100%">
+                  <Button
+                    colorScheme="blue"
+                    color="#3370FF"
+                    border="2px"
+                    variant="outline"
+                    w="100%"
+                    leftIcon={<LarkOne theme="outline" size="18" />}
+                    as="input"
+                    name="provider"
+                    value="lark"
+                  >
+                    使用 飞书 登录
+                  </Button>
+
+                  <Button
+                    colorScheme="blue"
+                    color="#2AAE67"
+                    border="2px"
+                    variant="outline"
+                    w="100%"
+                    leftIcon={<Wechat theme="outline" size="18" />}
+                    isDisabled={true}
+                  >
+                    使用 微信 登录
+                  </Button>
+
+                  <Button
+                    colorScheme="blue"
+                    color="#005826"
+                    border="2px"
+                    variant="outline"
+                    w="100%"
+                    leftIcon={<School theme="outline" size="18" />}
+                    isDisabled={true}
+                  >
+                    使用 CAS 登录
+                  </Button>
+                </VStack>
+
+                <Box>
+                  <Text
+                    fontSize="12"
+                    color="blackAlpha.500"
+                    fontWeight="bold"
+                    fontFamily="Raleway"
+                  >
+                    or Login with your ECNC Account
+                  </Text>
+
+                  <VStack mt={6} spacing={6} align="stretch">
+                    <FormControl>
+                      <FormLabel>NetID</FormLabel>
+                      <Input variant="filled" name="password_identifier" />
+                    </FormControl>
+
+                    <FormControl>
+                      <FormLabel>Password</FormLabel>
+                      <Input
+                        variant="filled"
+                        name="password"
+                        type="password"
+                        placeholder="注意不是 NetID 的密码"
+                      />
+                    </FormControl>
+                  </VStack>
+
+                  <Input
+                    type="hidden"
+                    name="csrf_token"
+                    value={
+                      (
+                        flow?.ui.nodes.find(
+                          (node) =>
+                            (node.attributes as UiNodeInputAttributes).name ===
+                            'csrf_token'
+                        )?.attributes as UiNodeInputAttributes
+                      ).value
+                    }
+                  />
+
+                  <Button
+                    colorScheme="blue"
+                    color="blue.600"
+                    variant="outline"
+                    fontSize="14"
+                    border="2px"
+                    mt="8"
+                    w="100%"
+                  >
+                    Login
+                  </Button>
+                </Box>
+              </VStack>
+            </VStack>
+          </form>
         ) : (
-          <>
-            <ActionCard>
-              <Link href="/registration" passHref>
-                <CenterLink>Create account</CenterLink>
-              </Link>
-            </ActionCard>
-            <ActionCard>
-              <Link href="/recovery" passHref>
-                <CenterLink>Recover your account</CenterLink>
-              </Link>
-            </ActionCard>
-          </>
+          <span>unsupported</span>
         )}
       </Flex>
     </ChakraProvider>
