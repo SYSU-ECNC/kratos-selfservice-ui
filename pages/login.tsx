@@ -202,7 +202,7 @@ const Login: NextPage = () => {
                     variant="outline"
                     w="100%"
                     leftIcon={<LarkOne theme="outline" size="18" />}
-                    as="input"
+                    type="submit"
                     name="provider"
                     value="lark"
                   >
@@ -264,6 +264,7 @@ const Login: NextPage = () => {
                   <Input
                     type="hidden"
                     name="csrf_token"
+                    readOnly={true}
                     value={
                       (
                         flow?.ui.nodes.find(
@@ -283,6 +284,7 @@ const Login: NextPage = () => {
                     border="2px"
                     mt="8"
                     w="100%"
+                    type="submit"
                   >
                     Login
                   </Button>
