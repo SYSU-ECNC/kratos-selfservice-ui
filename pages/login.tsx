@@ -269,50 +269,41 @@ const Login: NextPage = () => {
             </Box>
           </VStack>
         </VStack>
+        <MarginCard>
+          <CardTitle>
+            {(() => {
+              if (flow?.refresh) {
+                return 'Confirm Action'
+              } else if (flow?.requested_aal === 'aal2') {
+                return 'Two-Factor Authentication'
+              }
+              return 'Sign In'
+            })()}
+          </CardTitle>
+          <Flow onSubmit={onSubmit} flow={flow} />
+        </MarginCard>
+        {aal || refresh ? (
+          <ActionCard>
+            <CenterLink data-testid="logout-link" onClick={onLogout}>
+              Log out
+            </CenterLink>
+          </ActionCard>
+        ) : (
+          <>
+            <ActionCard>
+              <Link href="/registration" passHref>
+                <CenterLink>Create account</CenterLink>
+              </Link>
+            </ActionCard>
+            <ActionCard>
+              <Link href="/recovery" passHref>
+                <CenterLink>Recover your account</CenterLink>
+              </Link>
+            </ActionCard>
+          </>
+        )}
       </Flex>
     </ChakraProvider>
-  )
-  //
-  return (
-    <>
-      <Head>
-        <title>Sign in - Ory NextJS Integration Example</title>
-        <meta name="description" content="NextJS + React + Vercel + Ory" />
-      </Head>
-      <MarginCard>
-        <CardTitle>
-          {(() => {
-            if (flow?.refresh) {
-              return 'Confirm Action'
-            } else if (flow?.requested_aal === 'aal2') {
-              return 'Two-Factor Authentication'
-            }
-            return 'Sign In'
-          })()}
-        </CardTitle>
-        <Flow onSubmit={onSubmit} flow={flow} />
-      </MarginCard>
-      {aal || refresh ? (
-        <ActionCard>
-          <CenterLink data-testid="logout-link" onClick={onLogout}>
-            Log out
-          </CenterLink>
-        </ActionCard>
-      ) : (
-        <>
-          <ActionCard>
-            <Link href="/registration" passHref>
-              <CenterLink>Create account</CenterLink>
-            </Link>
-          </ActionCard>
-          <ActionCard>
-            <Link href="/recovery" passHref>
-              <CenterLink>Recover your account</CenterLink>
-            </Link>
-          </ActionCard>
-        </>
-      )}
-    </>
   )
 }
 
