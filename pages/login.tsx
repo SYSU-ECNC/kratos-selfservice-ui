@@ -320,7 +320,7 @@ const Login: NextPage = () => {
               </VStack>
             </form>
           ) : (
-            <span>unsupported</span>
+            <span>Loading...</span>
           )}
         </VStack>
       </Flex>
