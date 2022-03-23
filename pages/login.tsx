@@ -24,7 +24,7 @@ import {
 } from '@ory/kratos-client'
 import { CardTitle } from '@ory/themes'
 import { AxiosError } from 'axios'
-import type { NextPage } from 'next'
+import type { GetServerSidePropsContext, GetServerSidePropsResult, NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -38,7 +38,8 @@ import {
   MarginCard
 } from '../pkg'
 import { handleGetFlowError, handleFlowError } from '../pkg/errors'
-import ory from '../pkg/sdk'
+import { getUrlForFlow } from '../pkg/helper'
+import ory, { serverApi as oryServerApi } from '../pkg/sdk'
 
 interface InputBox_Value {
   title: string
@@ -62,11 +63,7 @@ function InputBox(props: InputBox_Value) {
   )
 }
 
-const Login: NextPage = () => {
-  const [flow, setFlow] = useState<SelfServiceLoginFlow>()
-
-  // Get ?flow=... from the URL
-  const router = useRouter()
+export function getServerSideProps(context: GetServerSidePropsContext) {
   const {
     return_to: returnTo,
     flow: flowId,
@@ -76,68 +73,80 @@ const Login: NextPage = () => {
     // AAL = Authorization Assurance Level. This implies that we want to upgrade the AAL, meaning that we want
     // to perform two-factor authentication/verification.
     aal
-  } = router.query
+  } = context.query;
 
-  // This might be confusing, but we want to show the user an option
-  // to sign out if they are performing two-factor authentication!
-  const onLogout = createLogoutHandler([aal, refresh])
+  if (!flowId) {
+    const initFlowUrl = getUrlForFlow(
+      'login',
+      new URLSearchParams({
+        aal: aal?.toString() || '',
+        refresh: refresh?.toString() || '',
+        return_to: returnTo?.toString() || ''
+      })
+    )
 
-  const afterFlowObtained = (data: SelfServiceLoginFlow) => {
-    if (navigator.userAgent.toLowerCase().includes('lark')) {
-      // The page is open in Lark WebView
-      const csrfTokenNode = data.ui.nodes.find(
-        (node) =>
-          isUiNodeInputAttributes(node.attributes) &&
-          node.attributes.name === 'csrf_token'
-      )
-      const csrfToken = (csrfTokenNode?.attributes as UiNodeInputAttributes)
-        ?.value
+    return {
+      redirect: {
+        permanent: false,
+        destination: initFlowUrl,
+      }
+    }
+  }
 
-      ory
-        .submitSelfServiceLoginFlow(data.id, undefined, {
-          csrf_token: csrfToken,
+  return oryServerApi.getSelfServiceLoginFlow(String(flowId), context.req.headers.cookie)
+    .then(({ data: flow }) => {
+      const userAgent = context.req.headers['user-agent'] || '';
+
+      if (userAgent.includes('Lark')) {
+        oryServerApi.submitSelfServiceLoginFlow(flow.id, undefined, {
           method: 'oidc',
           provider: 'lark'
         })
-        .catch((err: AxiosError) => {
-          if (err.response?.status === 422) {
-            location.href = err.response?.data['redirect_browser_to'];
+      }
+      
+      if (userAgent.includes('MicroMessenger')) {
+        oryServerApi.submitSelfServiceLoginFlow(flow.id, undefined, {
+          method: 'oidc',
+          provider: 'wecom',
+        })
+      }
+
+      return {
+        props: {
+          flow,
+        }
+      }
+    })
+    .catch((err: AxiosError) => {
+      if (err.response?.status === 422) {
+        const redirectTo = err.response?.data['redirect_browser_to'];
+        return {
+          redirect: {
+            permanent: false,
+            destination: redirectTo,
           }
-        })
-      return
-    }
-    setFlow(data)
-  }
+        }
+      }
 
-  useEffect(() => {
-    // If the router is not ready yet, or we already have a flow, do nothing.
-    if (!router.isReady || flow) {
-      return
-    }
+      return {
+        props: {
+          err,
+        }
+      }
+    })
+}
 
-    // If ?flow=.. was in the URL, we fetch it
-    if (flowId) {
-      ory
-        .getSelfServiceLoginFlow(String(flowId))
-        .then(({ data }) => {
-          afterFlowObtained(data);
-        })
-        .catch(handleGetFlowError(router, 'login', setFlow))
-      return
-    }
+const Login: NextPage<{
+  flow?: SelfServiceLoginFlow,
+  err?: AxiosError,
+}> = ({
+  flow, err
+}) => {
+  // This might be confusing, but we want to show the user an option
+  // to sign out if they are performing two-factor authentication!
+  // const onLogout = createLogoutHandler([aal, refresh])
 
-    // Otherwise we initialize it
-    ory
-      .initializeSelfServiceLoginFlowForBrowsers(
-        Boolean(refresh),
-        aal ? String(aal) : undefined,
-        returnTo ? String(returnTo) : undefined
-      )
-      .then(({ data }) => {
-        afterFlowObtained(data);
-      })
-      .catch(handleFlowError(router, 'login', setFlow))
-  }, [flowId, router, router.isReady, aal, refresh, returnTo, flow])
+  const router = useRouter();
 
   const onSubmit = (values: SubmitSelfServiceLoginFlowBody) =>
     router
@@ -156,12 +165,12 @@ const Login: NextPage = () => {
             router.push('/')
           })
           .then(() => {})
-          .catch(handleFlowError(router, 'login', setFlow))
+          // .catch(handleFlowError(router, 'login', setFlow))
           .catch((err: AxiosError) => {
             // If the previous handler did not catch the error it's most likely a form validation error
             if (err.response?.status === 400) {
               // Yup, it is!
-              setFlow(err.response?.data)
+              // setFlow(err.response?.data)
               return
             }
 
@@ -244,7 +253,9 @@ const Login: NextPage = () => {
                     variant="outline"
                     w="100%"
                     leftIcon={<Wechat theme="outline" size="18" />}
-                    isDisabled={true}
+                    type="submit"
+                    name="provider"
+                    value="wecom"
                   >
                     使用 微信 登录
                   </Button>
